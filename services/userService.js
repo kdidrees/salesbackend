@@ -2,6 +2,7 @@ const User = require("../models/User");
 const crypto = require("crypto");
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
+const { default: mongoose } = require("mongoose");
 const mailgun = new Mailgun(formData);
 
 // Correctly initialize the Mailgun client
@@ -12,7 +13,7 @@ const mg = mailgun.client({
 
 const sendVerificationEmail = async (email, link) => {
   const data = {
-    from: "YourApp <no-reply@sandbox155b42cee2ba4899b23a05964a1f4269.mailgun.org>",
+    from: "BissPro CRM <no-reply@sandbox155b42cee2ba4899b23a05964a1f4269.mailgun.org>",
     to: email,
     subject: "Email Verification",
     html: `<p>Please verify your email by clicking on the following link:</p>
@@ -50,7 +51,6 @@ const registerUser = async (email, protocol, host) => {
 
   // Send verification email using Mailgun
   await sendVerificationEmail(email, verificationLink);
-
   return { message: "User registered, please verify your email" };
 };
 
@@ -84,4 +84,17 @@ const getUsers = async () => {
   return users;
 };
 
-module.exports = { registerUser, verifyUser,getUsers };
+const deleteUser = async (userId) => {
+  const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+
+  if (!user) {
+    throw new Error("user not found");
+  }
+
+  await User.deleteOne(user);
+
+  return { status: "success", message: "user deleted successfully", user };
+  
+};
+
+module.exports = { registerUser, verifyUser, getUsers, deleteUser };
