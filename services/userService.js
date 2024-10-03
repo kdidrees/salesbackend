@@ -74,4 +74,14 @@ const verifyUser = async (token) => {
   return { message: "Email verified successfully" };
 };
 
-module.exports = { registerUser, verifyUser };
+const getUsers = async () => {
+  const users = await User.find({ isVerified: true });
+
+  if (!users) {
+    throw new Error("no users");
+  }
+
+  return users;
+};
+
+module.exports = { registerUser, verifyUser,getUsers };
