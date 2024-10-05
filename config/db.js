@@ -3,7 +3,11 @@ require("dotenv").config();
 const User = require("../models/User");
 
 async function ConnectDatabase() {
-  await mongoose.connect(process.env.DB_URI);
-  console.log("database connected");
+  try {
+    await mongoose.connect(process.env.DB_URI);
+    console.log("database connected");
+  } catch (error) {
+    console.log(error);
+  }
 }
 module.exports = ConnectDatabase;

@@ -6,11 +6,15 @@ const {
 } = require("../services/userService");
 
 exports.register = async (req, res) => {
-  const { email } = req.body;
+  const { users } = req.body;
+
+  if(!Array.isArray(users) || users.length===0){
+    return res.status(400).json({error:"No emails provided or invalid format"})
+  }
 
   try {
-    const result = await registerUser(email, req.protocol, req.get("host"));
-    res.status(200).json(result);
+    const results = await registerUser(users, req.protocol, req.get("host"));
+    res.status(200).json(results);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

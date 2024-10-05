@@ -14,7 +14,7 @@ app.use(
     origin: "*",
     credentials: true,
   })
-);
+);  
 
 // call the function here to connect the database
 ConnectDatabase();
