@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
   },
   tempPassword:{
     type:String,  
-  }
+  },
+
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -22,7 +22,6 @@ exports.register = async (req, res) => {
 
 exports.verify = async (req, res) => {
   const { token } = req.params;
-
   
   try {
     const result = await verifyUser(token);

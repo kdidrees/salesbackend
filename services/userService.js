@@ -120,7 +120,7 @@ const verifyUser = async (token) => {
 };
 
 const getUsers = async () => {
-  const users = await User.find({ isVerified: true });
+  const users = await User.find({ isVerified: true }).select("-password");
 
   if (!users) {
     throw new Error("no users");
