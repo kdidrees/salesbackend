@@ -5,6 +5,7 @@ const Mailgun = require("mailgun.js");
 const { default: mongoose } = require("mongoose");
 const mailgun = new Mailgun(formData);
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // Correctly initialize the Mailgun client
 const mg = mailgun.client({
@@ -137,8 +138,42 @@ const deleteUser = async (userId) => {
   }
 
   await User.deleteOne(user);
-
-  return { status: "success", message: "user deleted successfully", user };
 };
 
-module.exports = { registerUser, verifyUser, getUsers, deleteUser };
+const loginUser = async (email, password) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("Invalid credentials");
+  }
+
+  if (!user.isVerified) {
+    throw new Error("Please verify your email to proceed.");
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    throw new Error("Invalid credentials");
+  }
+
+  // generate jwt token
+  const token = jwt.sign(
+    { userId: user._id, email: user.email, username: user.username },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+
+  return {
+    status: "success",
+    message: "Login successfull",
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      username: user.username,
+    },
+  };
+};
+
+module.exports = { registerUser, verifyUser, getUsers, deleteUser,loginUser };

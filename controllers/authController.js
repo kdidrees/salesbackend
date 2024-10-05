@@ -2,14 +2,17 @@ const {
   registerUser,
   verifyUser,
   getUsers,
-  deleteUser
+  deleteUser,
+  loginUser,
 } = require("../services/userService");
 
 exports.register = async (req, res) => {
   const { users } = req.body;
 
-  if(!Array.isArray(users) || users.length===0){
-    return res.status(400).json({error:"No emails provided or invalid format"})
+  if (!Array.isArray(users) || users.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "No emails provided or invalid format" });
   }
 
   try {
@@ -22,7 +25,7 @@ exports.register = async (req, res) => {
 
 exports.verify = async (req, res) => {
   const { token } = req.params;
-  
+
   try {
     const result = await verifyUser(token);
     res.status(200).json(result);
@@ -49,6 +52,21 @@ exports.deleteUser = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
 
-    console.log(error,'err.')
+    console.log(error, "err.");
+  }
+};
+
+// login controller
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  console.log(email,password,'cred..')
+
+  try {
+    const result = await loginUser(email, password);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
