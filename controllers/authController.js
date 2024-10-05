@@ -23,7 +23,7 @@ exports.register = async (req, res) => {
 exports.verify = async (req, res) => {
   const { token } = req.params;
 
-  console.log(token, "token");
+  
   try {
     const result = await verifyUser(token);
     res.status(200).json(result);

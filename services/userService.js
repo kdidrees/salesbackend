@@ -4,6 +4,7 @@ const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 const { default: mongoose } = require("mongoose");
 const mailgun = new Mailgun(formData);
+const bcrypt = require("bcryptjs");
 
 // Correctly initialize the Mailgun client
 const mg = mailgun.client({
@@ -56,6 +57,9 @@ const registerUser = async (users, protocol, host) => {
       // Generate a random password
       const randomPassword = crypto.randomBytes(6).toString("hex");
 
+      // hash the password using bcrypt
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
       // Generate a verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
 
@@ -63,9 +67,10 @@ const registerUser = async (users, protocol, host) => {
       const newUser = new User({
         email,
         username,
-        password: randomPassword,
+        password: hashedPassword,
         verificationToken,
         isVerified: false,
+        tempPassword: randomPassword,
       });
 
       await newUser.save();
@@ -96,15 +101,22 @@ const verifyUser = async (token) => {
     throw new Error("Invalid or expired token");
   }
 
+  if (user.isVerified) {
+    return { message: "user is already verified" };
+  }
+
   await User.updateOne(
     { _id: user._id },
     {
       $set: { isVerified: true },
-      $unset: { verificationToken: "" },
+      $unset: { verificationToken: "", tempPassword: "" },
     }
   );
 
-  return { message: "Email verified successfully" };
+  return {
+    message: "Email verified successfully",
+    password: `Here is your password ${user.tempPassword}`,
+  };
 };
 
 const getUsers = async () => {
