@@ -73,7 +73,7 @@ const registerUser = async (users, protocol, host) => {
         verificationToken,
         isVerified: false,
         tempPassword: randomPassword,
-        role: role || "user",
+        role: "user",
       });
 
       await newUser.save();
