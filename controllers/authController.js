@@ -6,7 +6,7 @@ const {
   loginUser,
   requestOTPForPasswordReset,
   verifyOTPAndResetPassword,
-  verifyToken,
+  verifyToken
 } = require("../services/authService");
 
 exports.register = async (req, res) => {
