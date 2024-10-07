@@ -20,7 +20,7 @@ app.use(
 ConnectDatabase();
 
 // Routes
-app.use("/api", authRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`server started at port ${process.env.PORT}`);

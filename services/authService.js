@@ -33,7 +33,7 @@ const sendVerificationEmail = async (email, link) => {
 const registerUser = async (users, protocol, host) => {
   const results = [];
 
-  for (const { email, username } of users) {
+  for (const { email, username, role } of users) {
     try {
       // check if the email or username already exists
       const existingUser = await User.findOne({ email });
@@ -73,6 +73,7 @@ const registerUser = async (users, protocol, host) => {
         verificationToken,
         isVerified: false,
         tempPassword: randomPassword,
+        role: role || "user",
       });
 
       await newUser.save();
@@ -200,7 +201,7 @@ const requestOTPForPasswordReset = async (email) => {
   const message = `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`;
   await sendEmail(user.email, subject, message);
 
-  return { message: "OTP sent to your email address" };
+  return { status: "success", message: "OTP sent to your email address" };
 };
 
 // verify otp and reset password service
@@ -215,18 +216,30 @@ const verifyOTPAndResetPassword = async (email, otp, newPassword) => {
     throw new Error("OTP expired");
   }
 
-// hash the new password using bcryptjs 
-const hashedPassword = await bcrypt.hash(newPassword,10);
+  // hash the new password using bcryptjs
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-// update user's password and clear otp-related fields 
-user.password = hashedPassword;
-user.otp = undefined;
-user.otpExpiry = undefined;
-await user.save();
+  // update user's password and clear otp-related fields
+  user.password = hashedPassword;
+  user.otp = undefined;
+  user.otpExpiry = undefined;
+  await user.save();
 
+  return { status: "success", message: "Password reset successfully" };
+};
 
-return {message:"Password reset successfully"}
+const verifyToken = (token) => {
+  if (!token) {
+    throw new Error("No token provided");
+  }
 
+  try {
+    // verify the token with the secret
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch (error) {
+    throw new Error("Invalid token");
+  }
 };
 
 module.exports = {
@@ -236,5 +249,6 @@ module.exports = {
   deleteUser,
   loginUser,
   requestOTPForPasswordReset,
-  verifyOTPAndResetPassword
+  verifyOTPAndResetPassword,
+  verifyToken,
 };
