@@ -10,7 +10,6 @@ const mg = mailgun.client({
 });
 
 
-
 const sendMail = async (to, subject, message) => {
   try {
     const mailData = {
