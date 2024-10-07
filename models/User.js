@@ -9,23 +9,27 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true,  
+    unique: true,
   },
   password: {
     type: String,
   },
   verificationToken: {
     type: String,
-    required: true,
   },
   isVerified: {
     type: Boolean,
     default: false,
   },
-  tempPassword:{
-    type:String,  
+  tempPassword: {
+    type: String,
   },
-
+  otp: {
+    type: String,
+  },
+  otpExpiry: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

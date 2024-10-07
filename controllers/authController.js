@@ -4,6 +4,8 @@ const {
   getUsers,
   deleteUser,
   loginUser,
+  requestOTPForPasswordReset,
+  verifyOTPAndResetPassword,
 } = require("../services/userService");
 
 exports.register = async (req, res) => {
@@ -61,10 +63,33 @@ exports.deleteUser = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log(email,password,'cred..')
-
   try {
     const result = await loginUser(email, password);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// requesting OTP for password reset
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await requestOTPForPasswordReset(email);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// for verifying OTP and resetting password
+
+exports.resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  try {
+    const result = await verifyOTPAndResetPassword(email, otp, newPassword);
     res.status(200).json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });

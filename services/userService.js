@@ -6,6 +6,7 @@ const { default: mongoose } = require("mongoose");
 const mailgun = new Mailgun(formData);
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/sendMail");
 
 // Correctly initialize the Mailgun client
 const mg = mailgun.client({
@@ -176,4 +177,64 @@ const loginUser = async (email, password) => {
   };
 };
 
-module.exports = { registerUser, verifyUser, getUsers, deleteUser,loginUser };
+const requestOTPForPasswordReset = async (email) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("No user found with this email");
+  }
+
+  // generate a 6 digit O.T.P
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // set OTP expiry (e.g, 10 minutes)
+  const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+  // save otp and expiry in the user document
+  user.otp = otp;
+  user.otpExpiry = otpExpiry;
+  await user.save();
+
+  // send the otp with mailgun
+  const subject = "Password Reset OTP";
+  const message = `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`;
+  await sendEmail(user.email, subject, message);
+
+  return { message: "OTP sent to your email address" };
+};
+
+// verify otp and reset password service
+const verifyOTPAndResetPassword = async (email, otp, newPassword) => {
+  const user = await User.findOne({ email });
+
+  if (!user || user.otp !== otp) {
+    throw new Error("Invalid OTP or email");
+  }
+
+  if (user.otpExpiry && user.otpExpiry < new Date()) {
+    throw new Error("OTP expired");
+  }
+
+// hash the new password using bcryptjs 
+const hashedPassword = await bcrypt.hash(newPassword,10);
+
+// update user's password and clear otp-related fields 
+user.password = hashedPassword;
+user.otp = undefined;
+user.otpExpiry = undefined;
+await user.save();
+
+
+return {message:"Password reset successfully"}
+
+};
+
+module.exports = {
+  registerUser,
+  verifyUser,
+  getUsers,
+  deleteUser,
+  loginUser,
+  requestOTPForPasswordReset,
+  verifyOTPAndResetPassword
+};
