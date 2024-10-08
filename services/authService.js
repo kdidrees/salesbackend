@@ -32,19 +32,14 @@ const sendVerificationEmail = async (email, link) => {
 
 const registerUser = async (users, protocol, host) => {
   const results = [];
-  let overallStatus = "success"; // Initialize the overall status
-  let overallMessage = "All users registered successfully"; // Initialize the overall message
+  let overallStatus = "success";
+  let overallMessage = "All users registered successfully";
 
   for (const { email, username, role } of users) {
     try {
       // Check if the email or username already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        results.push({
-          email,
-          status: "error",
-          message: "Email already exists",
-        });
         overallStatus = "error"; // Update overall status
         overallMessage = "Some users could not be registered"; // Update overall message
         continue;
@@ -52,14 +47,8 @@ const registerUser = async (users, protocol, host) => {
 
       const existingUserByUsername = await User.findOne({ username });
       if (existingUserByUsername) {
-        results.push({
-          username,
-          status: "error",
-          message: "Username already exists",
-        });
-        overallStatus = "error"; // Update overall status
-        overallMessage = "Some users could not be registered"; // Update overall message
-        continue;
+        overallStatus = "error";
+        overallMessage = "some user could not be registered";
       }
 
       // Generate a random password
@@ -96,9 +85,8 @@ const registerUser = async (users, protocol, host) => {
         isVerified: newUser.isVerified,
       });
     } catch (error) {
-      results.push({ email, status: "error", message: error.message });
-      overallStatus = "error"; // Update overall status
-      overallMessage = "Some users could not be registered"; // Update overall message
+      overallStatus = "error";
+      overallMessage = "Some users could not be registered";
     }
   }
 
