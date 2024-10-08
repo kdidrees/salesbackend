@@ -6,7 +6,8 @@ const {
   loginUser,
   requestOTPForPasswordReset,
   verifyOTPAndResetPassword,
-  verifyToken
+  verifyToken,
+  invitedUsers,
 } = require("../services/authService");
 
 exports.register = async (req, res) => {
@@ -40,6 +41,15 @@ exports.verify = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const result = await getUsers();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.invitedUsers = async (req, res) => {
+  try {
+    const result = await invitedUsers();
     res.status(200).json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -112,3 +122,4 @@ exports.verifyToken = (req, res) => {
     });
   }
 };
+

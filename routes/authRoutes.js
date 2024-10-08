@@ -7,7 +7,8 @@ const {
   login,
   forgotPassword,
   resetPassword,
-  verifyToken
+  verifyToken,
+  invitedUsers
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.delete("/users/:id", deleteUser);
 router.post("/login", login);
 router.post("/forgot-password",forgotPassword);
 router.post("/reset-password",resetPassword);
-router.post("/verify-token",verifyToken)
+router.post("/verify-token",verifyToken)  
+router.get("/invites",invitedUsers)
 
 module.exports = router;

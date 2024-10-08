@@ -123,7 +123,9 @@ const verifyUser = async (token) => {
 };
 
 const getUsers = async () => {
-  const users = await User.find({ isVerified: true }).select("-password");
+  const users = await User.find({ isVerified: true }).select(
+    "-password -verificationToken  -tempPassword -otp -otpExpiry"
+  );
 
   if (!users) {
     throw new Error("no users");
@@ -131,6 +133,17 @@ const getUsers = async () => {
 
   return users;
 };
+
+
+const invitedUsers =async ()=>{
+  const users = await User.find({isVerified:false});
+  
+  if(!users){
+    throw new Error('no users');
+  }
+
+  return users;
+}
 
 const deleteUser = async (userId) => {
   const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
@@ -251,4 +264,5 @@ module.exports = {
   requestOTPForPasswordReset,
   verifyOTPAndResetPassword,
   verifyToken,
+  invitedUsers
 };
