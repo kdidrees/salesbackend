@@ -122,4 +122,3 @@ exports.verifyToken = (req, res) => {
     });
   }
 };
-

@@ -84,9 +84,16 @@ const registerUser = async (users, protocol, host) => {
       await sendVerificationEmail(email, verificationLink);
 
       results.push({
-        email,
         status: "success",
         message: "User registered, please verify your email",
+        data: [
+          {
+            _id: newUser._id,
+            email: newUser.email,
+            username: newUser.username,
+            isVerified: newUser.isVerified,
+          },
+        ],
       });
     } catch (error) {
       results.push({ email, status: "error", message: error.message });
@@ -134,18 +141,17 @@ const getUsers = async () => {
   return users;
 };
 
-
-const invitedUsers =async ()=>{
-  const users = await User.find({isVerified:false}).select(
+const invitedUsers = async () => {
+  const users = await User.find({ isVerified: false }).select(
     "-password -verificationToken  -tempPassword -otp -otpExpiry"
   );
-  
-  if(!users){
-    throw new Error('no users');
+
+  if (!users) {
+    throw new Error("no users");
   }
 
   return users;
-}
+};
 
 const deleteUser = async (userId) => {
   const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
@@ -266,5 +272,5 @@ module.exports = {
   requestOTPForPasswordReset,
   verifyOTPAndResetPassword,
   verifyToken,
-  invitedUsers
+  invitedUsers,
 };
