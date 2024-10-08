@@ -136,7 +136,9 @@ const getUsers = async () => {
 
 
 const invitedUsers =async ()=>{
-  const users = await User.find({isVerified:false});
+  const users = await User.find({isVerified:false}).select(
+    "-password -verificationToken  -tempPassword -otp -otpExpiry"
+  );
   
   if(!users){
     throw new Error('no users');
