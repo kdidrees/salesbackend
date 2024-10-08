@@ -32,10 +32,12 @@ const sendVerificationEmail = async (email, link) => {
 
 const registerUser = async (users, protocol, host) => {
   const results = [];
+  let overallStatus = "success"; // Initialize the overall status
+  let overallMessage = "All users registered successfully"; // Initialize the overall message
 
   for (const { email, username, role } of users) {
     try {
-      // check if the email or username already exists
+      // Check if the email or username already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         results.push({
@@ -43,6 +45,8 @@ const registerUser = async (users, protocol, host) => {
           status: "error",
           message: "Email already exists",
         });
+        overallStatus = "error"; // Update overall status
+        overallMessage = "Some users could not be registered"; // Update overall message
         continue;
       }
 
@@ -53,19 +57,21 @@ const registerUser = async (users, protocol, host) => {
           status: "error",
           message: "Username already exists",
         });
+        overallStatus = "error"; // Update overall status
+        overallMessage = "Some users could not be registered"; // Update overall message
         continue;
       }
 
       // Generate a random password
       const randomPassword = crypto.randomBytes(6).toString("hex");
 
-      // hash the password using bcrypt
+      // Hash the password using bcrypt
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       // Generate a verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
 
-      // create new user
+      // Create new user
       const newUser = new User({
         email,
         username,
@@ -77,30 +83,30 @@ const registerUser = async (users, protocol, host) => {
       });
 
       await newUser.save();
-      // create verification email
+      // Create verification email
       const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/verify/${verificationToken}`;
 
       // Send verification email
       await sendVerificationEmail(email, verificationLink);
 
       results.push({
-        status: "success",
-        message: "User registered, please verify your email",
-        data: [
-          {
-            _id: newUser._id,
-            email: newUser.email,
-            username: newUser.username,
-            isVerified: newUser.isVerified,
-          },
-        ],
+        _id: newUser._id,
+        email: newUser.email,
+        username: newUser.username,
+        isVerified: newUser.isVerified,
       });
     } catch (error) {
       results.push({ email, status: "error", message: error.message });
+      overallStatus = "error"; // Update overall status
+      overallMessage = "Some users could not be registered"; // Update overall message
     }
   }
 
-  return results;
+  return {
+    status: overallStatus,
+    message: overallMessage,
+    data: results,
+  };
 };
 
 const verifyUser = async (token) => {

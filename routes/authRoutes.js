@@ -13,7 +13,7 @@ const {
 
 const router = express.Router();
 
-router.post("/register", register);
+router.post("/register", register); 
 router.get("/verify/:token", verify);
 router.get("/users/all", getUsers);
 router.delete("/users/:id", deleteUser);
