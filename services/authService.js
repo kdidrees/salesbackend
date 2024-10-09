@@ -69,6 +69,7 @@ const registerUser = async (users, protocol, host) => {
         isVerified: false,
         tempPassword: randomPassword,
         role: "user",
+
       });
 
       await newUser.save();

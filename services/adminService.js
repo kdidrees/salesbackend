@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendMail");
+const { generateVerificationToken } = require("../utils/tokenUtils");
+const sendMail = require("../utils/sendMail");
 
 const registerAdmin = async (name, email, password, protocol, host) => {
   try {
@@ -109,5 +111,58 @@ const loginAdminUser = async (email, password) => {
   };
 };
 
-module.exports = { registerAdmin, verifyAdminUser, loginAdminUser };
+const resendVerificationToken = async (email) => {
+  const user = await AdminUser.findOne({ email });
+  if (!user) {
+    return { status: "failed", message: "user not found" };
+  }
 
+  const currentTime = Date.now();
+  if (user.verificationTokenExpires > currentTime) {
+    return {
+      status: "failed",
+      message: "Verification email already sent. Please check your email.",
+    };
+  }
+
+  const { token, expires } = generateVerificationToken();
+  user.verificationToken = token;
+  user.verificationTokenExpires = expires;
+
+  // save the user
+  await user.save();
+
+  const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/admin-verify/${token}`;
+
+  // compose the verification email message
+  const subject = "New Verification";
+  const message = `Please click the link below to verify your account:\n\n${verificationLink}\n\nThis link is valid for 1 hour. `;
+
+  try {
+    await sendMail(user.email, subject, message);
+  } catch (error) {
+    return { status: "failed", message: "Failed to send verification email" };
+  }
+
+  return {
+    status: "success",
+    message: "Verification email sent successfully!",
+  };
+};
+
+
+const requestPasswordReset = async(email)=>{
+   const user = await AdminUser.findOne({email});
+
+   if (!user) {
+    throw new Error('User not found.');
+  }
+
+
+  // generate a random OTP 
+  const otp = Math.floor(100000+Math.random()*900000).toString();
+//   user.reset
+
+}
+
+module.exports = { registerAdmin, verifyAdminUser, loginAdminUser, resendVerificationToken };

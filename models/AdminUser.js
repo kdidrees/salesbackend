@@ -28,6 +28,14 @@ const AdminUser = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  resetPasswordToken:{
+    type:String,
+    default:null
+  },
+  resetPasswordExpires:{
+    type:Date,
+    default:null
+  },
   role: {
     type: String,
     deafult: "role",

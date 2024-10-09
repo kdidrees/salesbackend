@@ -1,6 +1,6 @@
 const AdminUser = require("../models/AdminUser");
 const { registerAdmin } = require("../services/adminService");
-const { verifyAdminUser, loginAdminUser } = require("../services/adminService");
+const { verifyAdminUser, loginAdminUser ,resendVerificationToken} = require("../services/adminService");
 
 exports.AdminRegister = async (req, res) => {
   const { name, email, password } = req.body;
@@ -60,3 +60,25 @@ exports.loginAdmin = async (req, res) => {
     });
   }
 };
+
+
+exports.ResendverifyAdmin = async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      const result = await resendVerificationToken(email);
+  
+      res.status(200).json({
+        status: "success",
+        message: result.message,
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: "failed",
+        message: error.message,
+      });
+    }
+  };
+
+
+  
