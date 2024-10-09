@@ -74,4 +74,40 @@ const verifyAdminUser = async (token) => {
   };
 };
 
-module.exports = { registerAdmin, verifyAdminUser };
+const loginAdminUser = async (email, password) => {
+  const adminUser = await AdminUser.findOne({ email });
+
+  if (!adminUser) {
+    throw new Error("admin user not found");
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, adminUser.password);
+  if (!isPasswordMatch) {
+    throw new Error("Invalid credentials");
+  }
+
+  if (!adminUser.isVerified) {
+    throw new Error("Please verify your email first");
+  }
+
+  const token = jwt.sign(
+    {
+      id: adminUser._id,
+      email: adminUser.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+
+  return {
+    token,
+    user: {
+      id: adminUser._id,
+      email: adminUser.email,
+      name: adminUser.name,
+    },
+  };
+};
+
+module.exports = { registerAdmin, verifyAdminUser, loginAdminUser };
+

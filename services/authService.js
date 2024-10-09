@@ -243,6 +243,7 @@ const verifyOTPAndResetPassword = async (email, otp, newPassword) => {
   return { status: "success", message: "Password reset successfully" };
 };
 
+
 const verifyToken = (token) => {
   if (!token) {
     throw new Error("No token provided");

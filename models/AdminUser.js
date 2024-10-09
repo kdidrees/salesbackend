@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
 
 const AdminUser = new mongoose.Schema({
   name: {
@@ -28,6 +27,10 @@ const AdminUser = new mongoose.Schema({
   verificationTokenExpires: {
     type: Date,
     required: true,
+  },
+  role: {
+    type: String,
+    deafult: "role",
   },
 });
 

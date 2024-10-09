@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const ConnectDatabase = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -14,7 +15,8 @@ app.use(
     origin: "*",
     credentials: true,
   })
-);  
+);
+app.use(cookieParser());
 
 // call the function here to connect the database
 ConnectDatabase();

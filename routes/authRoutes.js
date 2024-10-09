@@ -11,7 +11,7 @@ const {
   invitedUsers,
   
 } = require("../controllers/authController");
-const { AdminRegister ,verifyAdminUser} = require("../controllers/adminAuth");
+const { AdminRegister ,verifyAdminUser,loginAdmin} = require("../controllers/adminAuth");
 
 const router = express.Router();
 
@@ -26,5 +26,7 @@ router.post("/verify-token", verifyToken);
 router.get("/invites", invitedUsers);
 router.post("/admin-register", AdminRegister);
 router.get("/admin-verify/:token", verifyAdminUser);
+router.post("/admin-login", loginAdmin);
+
 
 module.exports = router;
