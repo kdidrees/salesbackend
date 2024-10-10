@@ -19,10 +19,6 @@ const oAuth2Client = new google.auth.OAuth2(
 
 
 
-
-
-
-
 const registerAdmin = async (name, email, password, protocol, host) => {
   try {
     const existingUser = await AdminUser.findOne({ email });
