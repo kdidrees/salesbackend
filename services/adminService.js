@@ -150,19 +150,50 @@ const resendVerificationToken = async (email) => {
   };
 };
 
+const requestPasswordReset = async (email) => {
+  const user = await AdminUser.findOne({ email });
 
-const requestPasswordReset = async(email)=>{
-   const user = await AdminUser.findOne({email});
-
-   if (!user) {
-    throw new Error('User not found.');
+  if (!user) {
+    throw new Error("User not found.");
   }
 
+  // generate a random OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  user.resetPasswordToken = otp;
+  user.resetPasswordExpires = Date.now() + 5 * 60 * 1000;
 
-  // generate a random OTP 
-  const otp = Math.floor(100000+Math.random()*900000).toString();
-//   user.reset
+  await user.save();
 
-}
+  const message = `Your OTP for password reset is ${otp}. It is valid for 5 minutes.`;
+  await sendMail(user.email, "Password Reset OTP", message);
 
-module.exports = { registerAdmin, verifyAdminUser, loginAdminUser, resendVerificationToken };
+  return { message: "OTP sent to your email" };
+};
+
+const resetPassword = async (email, otp, newPassword) => {
+  const user = await AdminUser.findOne({
+    email,
+    resetPasswordToken: otp,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new Error("Invalid or expired OTP.");
+  }
+
+  user.password = newPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  return { message: "password has been reset successfully" };
+};
+
+module.exports = {
+  registerAdmin,
+  verifyAdminUser,
+  loginAdminUser,
+  resendVerificationToken,
+  requestPasswordReset,
+  resetPassword,
+};

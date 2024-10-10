@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const ConnectDatabase = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -23,6 +24,7 @@ ConnectDatabase();
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auth/admin", adminRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`server started at port ${process.env.PORT}`);

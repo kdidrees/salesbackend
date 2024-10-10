@@ -1,6 +1,12 @@
 const AdminUser = require("../models/AdminUser");
 const { registerAdmin } = require("../services/adminService");
-const { verifyAdminUser, loginAdminUser ,resendVerificationToken} = require("../services/adminService");
+const {
+  verifyAdminUser,
+  loginAdminUser,
+  resendVerificationToken,
+  requestPasswordReset,
+  resetPassword,
+} = require("../services/adminService");
 
 exports.AdminRegister = async (req, res) => {
   const { name, email, password } = req.body;
@@ -40,12 +46,12 @@ exports.loginAdmin = async (req, res) => {
   try {
     const { token, user } = await loginAdminUser(email, password);
 
-    res.cookie("token",token,{
-        httpOnly:true,
-        secure:process.env.NODE_ENV === "production",
-        maxAge:60*60*1000,
-        sameSite:"Strict"
-    })
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000,
+      sameSite: "Strict",
+    });
 
     res.status(200).json({
       status: "success",
@@ -61,24 +67,54 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
-
 exports.ResendverifyAdmin = async (req, res) => {
-    const { email } = req.body;
-  
-    try {
-      const result = await resendVerificationToken(email);
-  
-      res.status(200).json({
-        status: "success",
-        message: result.message,
-      });
-    } catch (error) {
-      res.status(400).json({
-        status: "failed",
-        message: error.message,
-      });
-    }
-  };
+  const { email } = req.body;
 
+  try {
+    const result = await resendVerificationToken(email);
 
-  
+    res.status(200).json({
+      status: "success",
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};
+
+exports.requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await requestPasswordReset(email);
+    res.status(200).json({
+      status: "success",
+      messagee: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, otp, password } = req.body;
+
+  try {
+    const result = await resetPassword(email, otp, password);
+    res.status(200).json({
+      status: "success",
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};

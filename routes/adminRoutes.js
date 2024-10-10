@@ -1,0 +1,21 @@
+const express = require("express");
+const {
+  AdminRegister,
+  verifyAdminUser,
+  loginAdmin,
+  ResendverifyAdmin,
+  resetPassword,
+  requestPasswordReset
+} = require("../controllers/adminAuth");
+
+const router = express.Router();
+
+router.post("/register", AdminRegister);
+router.get("/verify/:token", verifyAdminUser);
+router.post("/verify", ResendverifyAdmin);
+router.post("/login", loginAdmin);
+router.post("/forgot-password",resetPassword);
+router.post("/reset-password",requestPasswordReset);
+module.exports = router;
+
+
