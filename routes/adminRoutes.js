@@ -5,7 +5,11 @@ const {
   loginAdmin,
   resetPassword,
   requestPasswordReset,
-  resendVerificationToken
+  resendVerificationToken,
+  googleAuth,
+  googleAuthCallback,
+  googleLogin,
+  googleLoginCallback,
 } = require("../controllers/adminAuth");
 
 const router = express.Router();
@@ -13,17 +17,17 @@ const router = express.Router();
 router.post("/register", AdminRegister);
 router.get("/verify/:token", verifyAdminUser);
 router.post("/login", loginAdmin);
-router.post("/reset-password",resetPassword); 
-router.post("/forgot-password",requestPasswordReset);
-router.post('/resend-verification', resendVerificationToken);
+router.post("/reset-password", resetPassword);
+router.post("/forgot-password", requestPasswordReset);
+router.post("/resend-verification", resendVerificationToken);
 
-// // Initiate Google Auth flow
-// app.get('/auth/google/signup', SignupController.googleAuth);
-// // Handle Google Auth callback
-// app.get('/auth/google/signup/callback', SignupController.googleAuthCallback);
-// // Route to initiate Google login
-// app.get('/auth/google/login', loginController.googleLogin);
-// // Route to handle the Google login callback
-// app.get('/auth/google/login/callback', loginController.googleLoginCallback);
+// Initiate Google Auth flow
+router.get("/google/signup", googleAuth);
+// Handle Google Auth callback
+router.get("/google/signup/callback", googleAuthCallback);
+// Route to initiate Google login
+router.get("/google/login", googleLogin);
+// Route to handle the Google login callback
+router.get("/google/login/callback", googleLoginCallback);
 
 module.exports = router;

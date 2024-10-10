@@ -5,6 +5,8 @@ const {
   resendVerificationToken,
   requestPasswordReset,
   resetPassword,
+  loginService,
+  authService
   
 } = require("../services/adminService");
 
@@ -150,5 +152,28 @@ exports.googleLoginCallback = async (req, res) => {
           return res.status(400).json({ message: error.message });
       }
       res.status(500).json({ message: 'Error during Google login', error: error.message });
+  }
+};
+
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const authUrl = await authService.generateAuthUrl();
+    res.redirect(authUrl); // Redirect the user to Google OAuth consent screen
+  } catch (error) {
+    res.status(500).json({ message: 'Error generating Google auth URL', error: error.message });
+  }
+};
+// Controller to handle the Google OAuth callback
+exports.googleAuthCallback = async (req, res) => {
+  const { code } = req.query; // Extract code from query params
+  try {
+    const { token, user } = await authService.handleGoogleCallback(code);
+    res.status(200).json({ token, user });
+  } catch (error) {
+    if (error.message === 'User already exists. Please log in.') {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Error during Google authentication', error: error.message });
   }
 };
