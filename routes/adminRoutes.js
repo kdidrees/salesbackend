@@ -14,8 +14,6 @@ router.post("/register", AdminRegister);
 router.get("/verify/:token", verifyAdminUser);
 router.post("/verify", ResendverifyAdmin);
 router.post("/login", loginAdmin);
-router.post("/forgot-password",resetPassword);
-router.post("/reset-password",requestPasswordReset);
+router.post("/reset-password",resetPassword);
+router.post("/forgot-password",requestPasswordReset);
 module.exports = router;
-
-

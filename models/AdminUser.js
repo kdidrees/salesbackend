@@ -40,6 +40,11 @@ const AdminUser = new mongoose.Schema({
     type: String,
     deafult: "role",
   },
+  onboarding:{
+    type:String,
+    enum:["verify","about","company","finish"],
+    
+  }
 });
 
 // hash password before saving
