@@ -8,7 +8,6 @@ const { generateVerificationToken } = require("../utils/tokenUtils");
 const sendMail = require("../utils/sendMail");
 const { google } = require("googleapis");
 
-require("dotenv").config();
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI_LOGIN;
