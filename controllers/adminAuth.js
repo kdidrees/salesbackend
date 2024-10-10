@@ -67,23 +67,7 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
-exports.ResendverifyAdmin = async (req, res) => {
-  const { email } = req.body;
 
-  try {
-    const result = await resendVerificationToken(email);
-
-    res.status(200).json({
-      status: "success",
-      message: result.message,
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "failed",
-      message: error.message,
-    });
-  }
-};
 
 exports.requestPasswordReset = async (req, res) => {
   const { email } = req.body;
@@ -115,6 +99,32 @@ exports.resetPassword = async (req, res) => {
     res.status(400).json({
       status: "failed",
       message: error.message,
+    });
+  }
+};
+
+
+exports.resendVerificationToken = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await resendVerificationToken(email);
+
+    if (result.status === "failed") {
+      return res.status(400).json({
+        status: "failed",
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: result.message,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "failed",
+      message: "Server error. Please try again later.",
     });
   }
 };

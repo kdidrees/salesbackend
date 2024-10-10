@@ -111,44 +111,6 @@ const loginAdminUser = async (email, password) => {
   };
 };
 
-const resendVerificationToken = async (email) => {
-  const user = await AdminUser.findOne({ email });
-  if (!user) {
-    return { status: "failed", message: "user not found" };
-  }
-
-  const currentTime = Date.now();
-  if (user.verificationTokenExpires > currentTime) {
-    return {
-      status: "failed",
-      message: "Verification email already sent. Please check your email.",
-    };
-  }
-
-  const { token, expires } = generateVerificationToken();
-  user.verificationToken = token;
-  user.verificationTokenExpires = expires;
-
-  // save the user
-  await user.save();
-
-  const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/admin-verify/${token}`;
-
-  // compose the verification email message
-  const subject = "New Verification";
-  const message = `Please click the link below to verify your account:\n\n${verificationLink}\n\nThis link is valid for 1 hour. `;
-
-  try {
-    await sendMail(user.email, subject, message);
-  } catch (error) {
-    return { status: "failed", message: "Failed to send verification email" };
-  }
-
-  return {
-    status: "success",
-    message: "Verification email sent successfully!",
-  };
-};
 
 const requestPasswordReset = async (email) => {
   const user = await AdminUser.findOne({ email });
@@ -188,6 +150,50 @@ const resetPassword = async (email, otp, newPassword) => {
 
   return { message: "password has been reset successfully" };
 };
+
+const resendVerificationToken = async (email) => {
+  const user = await AdminUser.findOne({ email });
+  if (!user) {
+    return { status: "failed", message: "User not found" };
+  }
+
+  const currentTime = Date.now();
+  if (user.isVerified) {
+    return {
+      status: "failed",
+      message: "User is already verified.",
+    };
+  }
+
+  if (user.verificationTokenExpires > currentTime) {
+    return {
+      status: "failed",
+      message: "Verification email already sent. Please check your email.",
+    };
+  }
+
+  const { token, expires } = generateVerificationToken();
+  user.verificationToken = token;
+  user.verificationTokenExpires = expires;
+
+  await user.save();
+
+  const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/admin-verify/${token}`;
+  const subject = "New Verification";
+  const message = `Please click the link below to verify your account:\n\n${verificationLink}\n\nThis link is valid for 1 hour.`;
+
+  try {
+    await sendMail(user.email, subject, message);
+  } catch (error) {
+    return { status: "failed", message: "Failed to send verification email" };
+  }
+
+  return {
+    status: "success",
+    message: "Verification email sent successfully!",
+  };
+};
+
 
 module.exports = {
   registerAdmin,
