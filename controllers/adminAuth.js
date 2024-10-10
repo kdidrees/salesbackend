@@ -1,4 +1,3 @@
-const AdminUser = require("../models/AdminUser");
 const { registerAdmin } = require("../services/adminService");
 const {
   verifyAdminUser,

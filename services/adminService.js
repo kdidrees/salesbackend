@@ -196,7 +196,6 @@ const resendVerificationToken = async (email) => {
   };
 };
 
-
 module.exports = {
   registerAdmin,
   verifyAdminUser,

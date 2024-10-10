@@ -25,7 +25,4 @@ router.post("/reset-password", resetPassword);
 router.post("/verify-token", verifyToken);
 router.get("/invites",VerifyUser, invitedUsers);
 
-
-
-
 module.exports = router;
