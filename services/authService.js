@@ -16,7 +16,7 @@ const mg = mailgun.client({
 
 const sendVerificationEmail = async (email, link) => {
   const data = {
-    from: "BizPro CRM <no-reply@sandbox155b42cee2ba4899b23a05964a1f4269.mailgun.org>",
+    from: "BizPro CRM <no-replsy@sandbox155b42cee2ba4899b23a05964a1f4269.mailgun.org>",
     to: email,
     subject: "Email Verification",
     html: `<p>Please verify your email by clicking on the following link:</p>

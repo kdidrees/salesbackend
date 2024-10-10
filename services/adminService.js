@@ -178,7 +178,7 @@ const resendVerificationToken = async (email) => {
 
   await user.save();
 
-  const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/admin-verify/${token}`;
+  const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/verify/${token}`;
   const subject = "New Verification";
   const message = `Please click the link below to verify your account:\n\n${verificationLink}\n\nThis link is valid for 1 hour.`;
 
@@ -193,7 +193,6 @@ const resendVerificationToken = async (email) => {
     message: "Verification email sent successfully!",
   };
 };
-
 
 module.exports = {
   registerAdmin,
