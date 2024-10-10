@@ -5,6 +5,17 @@ const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendMail");
 const { generateVerificationToken } = require("../utils/tokenUtils");
 const sendMail = require("../utils/sendMail");
+const { google } = require("googleapis");
+
+require("dotenv").config();
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI_LOGIN;
+const oAuth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
 
 const registerAdmin = async (name, email, password, protocol, host) => {
   try {
@@ -23,7 +34,7 @@ const registerAdmin = async (name, email, password, protocol, host) => {
       password,
       verificationToken,
       verificationTokenExpires,
-      onboarding:'verify'
+      onboarding: "verify",
     });
 
     await newAdminUser.save();
@@ -45,7 +56,7 @@ const registerAdmin = async (name, email, password, protocol, host) => {
         email: newAdminUser.email,
         name: newAdminUser.name,
         isVerified: newAdminUser.isVerified,
-        onboarding:newAdminUser.onboarding
+        onboarding: newAdminUser.onboarding,
       },
     };
   } catch (error) {
@@ -112,7 +123,6 @@ const loginAdminUser = async (email, password) => {
     },
   };
 };
-
 
 const requestPasswordReset = async (email) => {
   const user = await AdminUser.findOne({ email });
@@ -196,6 +206,56 @@ const resendVerificationToken = async (email) => {
   };
 };
 
+class LoginService {
+  // Generate Google Auth URL
+  generateAuthUrl() {
+    const scopes = [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ];
+    return oAuth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: scopes,
+      prompt: "consent",
+    });
+  }
+  // Handle Google OAuth callback and user login
+  async handleGoogleLogin(code) {
+    try {
+      // Exchange code for tokens
+      const { tokens } = await oAuth2Client.getToken(code);
+      oAuth2Client.setCredentials(tokens);
+      // Get user info from Google
+      const oauth2 = google.oauth2({
+        auth: oAuth2Client,
+        version: "v2",
+      });
+      const userInfo = await oauth2.userinfo.get();
+      const { email, name, id: googleId } = userInfo.data;
+      // Check if user exists in the database
+      let user = await AdminUser.findOne({ email });
+      if (!user) {
+        // If user not found, return an error asking them to sign up first
+        throw new Error("User not found. Please sign up first.");
+      }
+      // If the user exists, return JWT token and user data
+      const token = this.generateJwtToken(user);
+      return { token, user };
+    } catch (error) {
+      console.error("Error during Google login:", error);
+      throw new Error(error.message || "Google login failed");
+    }
+  }
+  // Generate JWT token
+  generateJwtToken(user) {
+    return jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+  }
+}
+
 module.exports = {
   registerAdmin,
   verifyAdminUser,
@@ -203,4 +263,5 @@ module.exports = {
   resendVerificationToken,
   requestPasswordReset,
   resetPassword,
+  LoginService: new LoginService(),
 };

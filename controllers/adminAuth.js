@@ -5,6 +5,7 @@ const {
   resendVerificationToken,
   requestPasswordReset,
   resetPassword,
+  
 } = require("../services/adminService");
 
 exports.AdminRegister = async (req, res) => {
@@ -125,5 +126,29 @@ exports.resendVerificationToken = async (req, res) => {
       status: "failed",
       message: "Server error. Please try again later.",
     });
+  }
+};
+
+
+// Controller to initiate Google OAuth login
+exports.googleLogin = async (req, res) => {
+  try {
+      const authUrl = await loginService.generateAuthUrl();
+      res.redirect(authUrl); // Redirect the user to Google OAuth consent screen
+  } catch (error) {
+      res.status(500).json({ message: 'Error generating Google login URL', error: error.message });
+  }
+};
+// Controller to handle the Google OAuth login callback
+exports.googleLoginCallback = async (req, res) => {
+  const { code } = req.query; // Extract code from query params
+  try {
+      const { token, user } = await loginService.handleGoogleLogin(code);
+      res.status(200).json({ token, user });
+  } catch (error) {
+      if (error.message === 'User not found. Please sign up first.') {
+          return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: 'Error during Google login', error: error.message });
   }
 };
