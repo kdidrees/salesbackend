@@ -259,9 +259,6 @@ class LoginService {
 }
 
 
-
-
-
 class AuthService {
     // Generate Google Auth URL
     generateAuthUrl() {
