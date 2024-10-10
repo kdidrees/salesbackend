@@ -27,7 +27,7 @@ const registerAdmin = async (name, email, password, protocol, host) => {
 
     await newAdminUser.save();
 
-    const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/admin-verify/${verificationToken}`;
+    const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/admin/verify/${verificationToken}`;
 
     await sendEmail(
       email,
