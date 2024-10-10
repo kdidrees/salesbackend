@@ -28,23 +28,22 @@ const AdminUser = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  resetPasswordToken:{
-    type:String,
-    default:null
+  resetPasswordToken: {
+    type: String,
+    default: null,
   },
-  resetPasswordExpires:{
-    type:Date,
-    default:null
+  resetPasswordExpires: {
+    type: Date,
+    default: null,
   },
   role: {
     type: String,
     deafult: "role",
   },
-  onboarding:{
-    type:String,
-    enum:["verify","about","company","finish"],
-    
-  }
+  onboarding: {
+    type: String,
+    enum: ["verify", "about", "company", "finish"],
+  },
 });
 
 // hash password before saving
@@ -60,4 +59,4 @@ AdminUser.pre("save", async function (next) {
   }
 });
 
-module.exports = mongoose.model('adminUser',AdminUser);
+module.exports = mongoose.model("adminUser", AdminUser);

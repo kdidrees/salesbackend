@@ -23,6 +23,7 @@ const registerAdmin = async (name, email, password, protocol, host) => {
       password,
       verificationToken,
       verificationTokenExpires,
+      onboarding:'verify'
     });
 
     await newAdminUser.save();
@@ -44,6 +45,7 @@ const registerAdmin = async (name, email, password, protocol, host) => {
         email: newAdminUser.email,
         name: newAdminUser.name,
         isVerified: newAdminUser.isVerified,
+        onboarding:newAdminUser.onboarding
       },
     };
   } catch (error) {
