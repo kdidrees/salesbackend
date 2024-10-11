@@ -78,7 +78,7 @@ exports.requestPasswordReset = async (req, res) => {
     const result = await requestPasswordReset(email);
     res.status(200).json({
       status: "success",
-      messagee: result.message,
+      message: result.message,
     });
   } catch (error) {
     res.status(400).json({

@@ -22,7 +22,7 @@ const AdminUser = new mongoose.Schema({
   },
   verificationToken: {
     type: String,
-    required: true,
+    // required: true,
   },
   verificationTokenExpires: {
     type: Date,
