@@ -10,6 +10,7 @@ const {
   googleAuthCallback,
   googleLogin,
   googleLoginCallback,
+  onboardingStatus
 } = require("../controllers/adminAuth");
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.post("/login", loginAdmin);
 router.post("/reset-password", resetPassword);
 router.post("/forgot-password", requestPasswordReset);
 router.post("/resend-verification", resendVerificationToken);
+router.post("/onboard-status", onboardingStatus);
 
 // Initiate Google Auth flow
 router.get("/google/signup", googleAuth);

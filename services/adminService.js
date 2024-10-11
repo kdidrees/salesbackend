@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const AdminUser = require("../models/AdminUser");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -16,8 +16,6 @@ const oAuth2Client = new google.auth.OAuth2(
   CLIENT_SECRET,
   REDIRECT_URI
 );
-
-
 
 const registerAdmin = async (name, email, password, protocol, host) => {
   try {
@@ -258,60 +256,95 @@ class LoginService {
   }
 }
 
-
 class AuthService {
-    // Generate Google Auth URL
-    generateAuthUrl() {
-      const scopes = [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile",
-      ];
-      return oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: scopes,
-        prompt: 'consent', // Forces refresh token generation
+  // Generate Google Auth URL
+  generateAuthUrl() {
+    const scopes = [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ];
+    return oAuth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: scopes,
+      prompt: "consent", // Forces refresh token generation
+    });
+  }
+  // Handle callback after user is redirected back from Google
+  async handleGoogleCallback(code) {
+    try {
+      const { tokens } = await oAuth2Client.getToken(code);
+      oAuth2Client.setCredentials(tokens);
+      // Get user info from Google
+      const oauth2 = google.oauth2({
+        auth: oAuth2Client,
+        version: "v2",
       });
-    }
-    // Handle callback after user is redirected back from Google
-    async handleGoogleCallback(code) {
-      try {
-        const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
-        // Get user info from Google
-        const oauth2 = google.oauth2({
-          auth: oAuth2Client,
-          version: 'v2',
-        });
-        const userInfo = await oauth2.userinfo.get();
-        const { email, name, id: googleId } = userInfo.data;
-        // Check if user exists
-        let user = await AdminUser.findOne({ email });
-        if (user) {
-          throw new Error('User already exists. Please log in.');
-        }
-        // Create a new user if they don't exist
-        user = new User({
-          name,
-          email,
-          googleId,
-          isVerified: true,
-        });
-        await user.save();
-        // Generate JWT token for the user
-        const token = this.generateJwtToken(user);
-        return { token, user };
-      } catch (error) {
-        console.error('Error during Google callback:', error);
-        throw new Error(error.message || 'Google authentication failed');
+      const userInfo = await oauth2.userinfo.get();
+      const { email, name, id: googleId } = userInfo.data;
+      // Check if user exists
+      let user = await AdminUser.findOne({ email });
+      if (user) {
+        throw new Error("User already exists. Please log in.");
       }
-    }
-    // Generate JWT token
-    generateJwtToken(user) {
-      return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
-        expiresIn: '1h',
+      // Create a new user if they don't exist
+      user = new User({
+        name,
+        email,
+        googleId,
+        isVerified: true,
       });
+      await user.save();
+      // Generate JWT token for the user
+      const token = this.generateJwtToken(user);
+      return { token, user };
+    } catch (error) {
+      console.error("Error during Google callback:", error);
+      throw new Error(error.message || "Google authentication failed");
     }
   }
+  // Generate JWT token
+  generateJwtToken(user) {
+    return jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+  }
+}
+
+// get onboarding status with email
+
+const onboardingStatus = async (email) => {
+  try {
+    const user = await AdminUser.findOne({ email });
+
+    if (!user) {
+      return {
+        status: "error",
+        message: "User not found",
+      };
+    }
+
+    return {
+      status: "success",
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        onboarding: user.onboarding
+      },
+      message: "Onboarding status fetched successfully!",
+    };
+  } catch (error) {
+    console.error("Error fetching onboarding status: ", error);
+    return {
+      status: "error",
+      message: "An error occurred while fetching onboarding status",
+    };
+  }
+};
 
 module.exports = {
   registerAdmin,
@@ -321,5 +354,6 @@ module.exports = {
   requestPasswordReset,
   resetPassword,
   loginService: new LoginService(),
-  authService: new AuthService()
+  authService: new AuthService(),
+  onboardingStatus,
 };

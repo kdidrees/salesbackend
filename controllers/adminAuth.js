@@ -6,8 +6,8 @@ const {
   requestPasswordReset,
   resetPassword,
   loginService,
-  authService
-  
+  authService,
+  onboardingStatus,
 } = require("../services/adminService");
 
 exports.AdminRegister = async (req, res) => {
@@ -69,8 +69,6 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
-
-
 exports.requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
@@ -130,37 +128,47 @@ exports.resendVerificationToken = async (req, res) => {
   }
 };
 
-
 // Controller to initiate Google OAuth login
 exports.googleLogin = async (req, res) => {
   try {
-      const authUrl = await loginService.generateAuthUrl();
-      res.redirect(authUrl); // Redirect the user to Google OAuth consent screen
+    const authUrl = await loginService.generateAuthUrl();
+    res.redirect(authUrl); // Redirect the user to Google OAuth consent screen
   } catch (error) {
-      res.status(500).json({ message: 'Error generating Google login URL', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error generating Google login URL",
+        error: error.message,
+      });
   }
 };
 // Controller to handle the Google OAuth login callback
 exports.googleLoginCallback = async (req, res) => {
   const { code } = req.query; // Extract code from query params
   try {
-      const { token, user } = await loginService.handleGoogleLogin(code);
-      res.status(200).json({ token, user });
+    const { token, user } = await loginService.handleGoogleLogin(code);
+    res.status(200).json({ token, user });
   } catch (error) {
-      if (error.message === 'User not found. Please sign up first.') {
-          return res.status(400).json({ message: error.message });
-      }
-      res.status(500).json({ message: 'Error during Google login', error: error.message });
+    if (error.message === "User not found. Please sign up first.") {
+      return res.status(400).json({ message: error.message });
+    }
+    res
+      .status(500)
+      .json({ message: "Error during Google login", error: error.message });
   }
 };
-
 
 exports.googleAuth = async (req, res) => {
   try {
     const authUrl = await authService.generateAuthUrl();
     res.redirect(authUrl); // Redirect the user to Google OAuth consent screen
   } catch (error) {
-    res.status(500).json({ message: 'Error generating Google auth URL', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error generating Google auth URL",
+        error: error.message,
+      });
   }
 };
 // Controller to handle the Google OAuth callback
@@ -170,9 +178,27 @@ exports.googleAuthCallback = async (req, res) => {
     const { token, user } = await authService.handleGoogleCallback(code);
     res.status(200).json({ token, user });
   } catch (error) {
-    if (error.message === 'User already exists. Please log in.') {
+    if (error.message === "User already exists. Please log in.") {
       return res.status(400).json({ message: error.message });
     }
-    res.status(500).json({ message: 'Error during Google authentication', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error during Google authentication",
+        error: error.message,
+      });
+  }
+};
+
+exports.onboardingStatus = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const result = await onboardingStatus(email);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
   }
 };

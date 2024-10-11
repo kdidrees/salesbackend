@@ -43,6 +43,7 @@ const AdminUser = new mongoose.Schema({
   onboarding: {
     type: String,
     enum: ["verify", "about", "company", "finish"],
+    default:'verify'
   },
 });
 
