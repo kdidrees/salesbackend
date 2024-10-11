@@ -69,15 +69,18 @@ const registerUser = async (users, protocol, host) => {
         isVerified: false,
         tempPassword: randomPassword,
         role: "user",
-
       });
 
       await newUser.save();
       // Create verification email
-      const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/verify/${verificationToken}`;
+      const verificationLink = `https://wq1jbb9k-4000.inc1.devtunnels.ms/api/auth/verify/${verificationToken}`;
 
       // Send verification email
-      await sendVerificationEmail(email, verificationLink);
+      await sendEmail(
+        email,
+        "Email Verification",
+        `Please verify your email address by clicking on the following link: ${verificationLink}`
+      );
 
       results.push({
         _id: newUser._id,
@@ -243,7 +246,6 @@ const verifyOTPAndResetPassword = async (email, otp, newPassword) => {
 
   return { status: "success", message: "Password reset successfully" };
 };
-
 
 const verifyToken = (token) => {
   if (!token) {
