@@ -14,21 +14,6 @@ const mg = mailgun.client({
   key: process.env.MAILGUN_KEY,
 });
 
-const sendVerificationEmail = async (email, link) => {
-  const data = {
-    from: "BizPro CRM <no-replsy@sandbox155b42cee2ba4899b23a05964a1f4269.mailgun.org>",
-    to: email,
-    subject: "Email Verification",
-    html: `<p>Please verify your email by clicking on the following link:</p>
-           <a href="${link}">${link}</a>`,
-  };
-
-  try {
-    return await mg.messages.create(process.env.MAILGUN_DOMAIN, data);
-  } catch (error) {
-    console.error("Mailgun error:", error);
-  }
-};
 
 const registerUser = async (users, protocol, host) => {
   const results = [];
