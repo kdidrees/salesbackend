@@ -8,11 +8,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendMail");
 
-// Correctly initialize the Mailgun client
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAILGUN_KEY,
-});
 
 
 const registerUser = async (users, protocol, host) => {
