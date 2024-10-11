@@ -1,16 +1,6 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-// const formData = require("form-data");
-// const Mailgun = require("mailgun.js");
-// const mailgun = new Mailgun(formData);
-
-// // Correctly initialize the Mailgun client
-// const mg = mailgun.client({
-//   username: "api",
-//   key: process.env.MAILGUN_KEY,
-// });
-
 // create nodemailer transporter
 
 const transporter = nodemailer.createTransport({
