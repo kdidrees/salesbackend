@@ -105,7 +105,6 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-
 exports.resendVerificationToken = async (req, res) => {
   const { email } = req.body;
 

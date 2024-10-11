@@ -1,26 +1,39 @@
 require("dotenv").config();
-const formData = require("form-data");
-const Mailgun = require("mailgun.js");
-const mailgun = new Mailgun(formData);
+const nodemailer = require("nodemailer");
 
-// Correctly initialize the Mailgun client
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAILGUN_KEY,
+// const formData = require("form-data");
+// const Mailgun = require("mailgun.js");
+// const mailgun = new Mailgun(formData);
+
+// // Correctly initialize the Mailgun client
+// const mg = mailgun.client({
+//   username: "api",
+//   key: process.env.MAILGUN_KEY,
+// });
+
+// create nodemailer transporter
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.mail.us-east-1.awsapps.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMPTP_PASS,
+  },
 });
-
 
 const sendMail = async (to, subject, message) => {
   try {
     const mailData = {
-      from: "BizPro CRM <no-reply@sandbox155b42cee2ba4899b23a05964a1f4269.mailgun.org>",
-      to,
+      from: "BizPro CRM <khurshid@qurilo.com>",
+      to, 
       subject,
       text: message,
     };
 
-    // send email via Mailgun
-    await mg.messages.create(process.env.MAILGUN_DOMAIN,mailData);
+    // send email via Nodemailer
+    await transporter.sendMail(mailData);
 
     console.log("mail sent successfully");
   } catch (error) {
@@ -28,7 +41,5 @@ const sendMail = async (to, subject, message) => {
     throw new Error("Failed to send email");
   }
 };
-
-
 
 module.exports = sendMail;
